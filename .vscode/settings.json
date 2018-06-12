@@ -1,0 +1,8 @@
+{
+  "javascript.validate.enable": false,
+  "standard.enable": true,
+  "standard.autoFixOnSave": true,
+  "standard.options": {
+    "parser": "babel-eslint",
+  }
+}

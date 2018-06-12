@@ -1,0 +1,5 @@
+node_modules
+dist
+*.log*
+Thumb.db
+.DS_Store
