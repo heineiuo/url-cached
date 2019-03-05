@@ -61,7 +61,17 @@ class URLCachedStream extends Readable {
     if (shouldUpdate) {
       // do update
       try {
-        const res = await fetch(this.url.href)
+        let res = await fetch(this.url.href, { timeout: 3000 })
+        if (res.status >= 400) {
+          if (this.options.fallbackToIndexHTML) {
+            if (this.url.pathname[this.url.pathname.length - 1] === '/') {
+              this.url.pathname += 'index.html'
+            } else {
+              this.url.pathname += '/index.html'
+            }
+            res = await fetch(this.url.href, { timeout: 3000 })
+          }
+        }
         const buf = await res.arrayBuffer()
         await fs.writeFile(physicalPath, Buffer.from(buf))
         if (hasFatal) {

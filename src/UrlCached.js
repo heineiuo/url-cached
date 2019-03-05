@@ -35,7 +35,8 @@ class UrlCached {
         expire: this.options.expire,
         ctime: this.options.ctime,
         reload: this.options.reload,
-        retryInterval: this.options.retryInterval
+        retryInterval: this.options.retryInterval,
+        fallbackToIndexHTML: this.options.fallbackToIndexHTML
       })
     }
     throw new Error(`Protocol [${url.protocol}] is not supported.`)
