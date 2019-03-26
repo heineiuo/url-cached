@@ -5,6 +5,7 @@
 import { Readable } from 'stream'
 
 interface UrlCachedOptions {
+  preferCache?: boolean | false // use cache even expired
   cacheDir?: string | '~/.url-cached'
   reload?: boolean | false // true means all old file will be download again
   expire?: number | 0 // 0 means no expire, only download onece

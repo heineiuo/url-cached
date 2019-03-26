@@ -13,6 +13,7 @@ class UrlCached {
     if (typeof options.reload === 'undefined') options.reload = false
     if (typeof options.expire === 'undefined') options.expire = 0
     if (typeof options.retryInterval === 'undefined') options.retryInterval = 30000
+    if (typeof options.preferCache === 'undefined') options.preferCache = false
     this.options = options
     this.options.ctime = Date.now()
     mkdirp.sync(options.cacheDir)
@@ -31,6 +32,7 @@ class UrlCached {
     }
     if (url.protocol === 'http:' || url.protocol === 'https:') {
       return new URLCachedStream(url, {
+        preferCache: this.options.preferCache,
         cacheDir: this.options.cacheDir,
         expire: this.options.expire,
         ctime: this.options.ctime,

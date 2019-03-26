@@ -32,6 +32,37 @@ class URLCachedStream extends Readable {
     const fatalPath = physicalPath + '.fatal'
     let shouldUpdate = false
     let hasFatal = false
+
+    async function updateFile (options = {}) {
+      try {
+        let res = await fetch(this.url.href, { timeout: 3000 })
+        if (res.status >= 400) {
+          if (this.options.fallbackToIndexHTML) {
+            if (this.url.pathname[this.url.pathname.length - 1] === '/') {
+              this.url.pathname += 'index.html'
+            } else {
+              this.url.pathname += '/index.html'
+            }
+            res = await fetch(this.url.href, { timeout: 3000 })
+          }
+        }
+        const buf = await res.arrayBuffer()
+        await fs.writeFile(physicalPath, Buffer.from(buf))
+        if (hasFatal) {
+          try {
+            await fs.unlink(fatalPath)
+          } catch (e) {
+            //
+          }
+        }
+      } catch (e) {
+        await fs.writeFile(fatalPath, Buffer.from([]))
+        if (options.emitError) {
+          return this.emit('error', e)
+        }
+      }
+    }
+
     try {
       const stat = await fs.stat(physicalPath)
       if (this.options.reload && this.options.ctime > stat.mtime.getTime()) {
@@ -60,30 +91,10 @@ class URLCachedStream extends Readable {
     }
     if (shouldUpdate) {
       // do update
-      try {
-        let res = await fetch(this.url.href, { timeout: 3000 })
-        if (res.status >= 400) {
-          if (this.options.fallbackToIndexHTML) {
-            if (this.url.pathname[this.url.pathname.length - 1] === '/') {
-              this.url.pathname += 'index.html'
-            } else {
-              this.url.pathname += '/index.html'
-            }
-            res = await fetch(this.url.href, { timeout: 3000 })
-          }
-        }
-        const buf = await res.arrayBuffer()
-        await fs.writeFile(physicalPath, Buffer.from(buf))
-        if (hasFatal) {
-          try {
-            await fs.unlink(fatalPath)
-          } catch (e) {
-            //
-          }
-        }
-      } catch (e) {
-        await fs.writeFile(fatalPath, Buffer.from([]))
-        return this.emit('error', e)
+      if (this.options.preferCache) {
+        process.nextTick(updateFile)
+      } else {
+        await updateFile({ emitError: true })
       }
     }
 
