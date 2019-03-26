@@ -31,6 +31,7 @@ class URLCachedStream extends Readable {
     const physicalPath = path.resolve(this.options.cacheDir, hex)
     const fatalPath = physicalPath + '.fatal'
     let shouldUpdate = false
+    let hasCached = false
     let hasFatal = false
 
     async function updateFile (options = {}) {
@@ -65,6 +66,7 @@ class URLCachedStream extends Readable {
 
     try {
       const stat = await fs.stat(physicalPath)
+      hasCached = true
       if (this.options.reload && this.options.ctime > stat.mtime.getTime()) {
         shouldUpdate = true
       }
@@ -91,7 +93,7 @@ class URLCachedStream extends Readable {
     }
     if (shouldUpdate) {
       // do update
-      if (this.options.preferCache) {
+      if (this.options.preferCache && hasCached) {
         process.nextTick(updateFile)
       } else {
         await updateFile({ emitError: true })
