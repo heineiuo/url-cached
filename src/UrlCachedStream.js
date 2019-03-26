@@ -34,7 +34,7 @@ class URLCachedStream extends Readable {
     let hasCached = false
     let hasFatal = false
 
-    async function updateFile (options = {}) {
+    const updateFile = async (options = {}) => {
       try {
         let res = await fetch(this.url.href, { timeout: 3000 })
         if (res.status >= 400) {
