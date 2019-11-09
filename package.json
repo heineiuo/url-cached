@@ -14,6 +14,7 @@
   ],
   "dependencies": {
     "js-sha1": "^0.6.0",
+    "mkdirp": "^0.5.1",
     "node-fetch": "^2.1.2",
     "readable-stream": "^2.3.6"
   },
